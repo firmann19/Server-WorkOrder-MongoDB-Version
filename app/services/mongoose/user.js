@@ -5,6 +5,14 @@ const {
   UnauthorizedError,
 } = require("../../errors");
 const { createJWT, createTokenUser } = require("../../utils");
+const {
+  CountAllWorkOrder,
+  CountAllUser,
+  CountAllGroup,
+  CountOnProgress,
+  CountClose,
+  CountPending,
+} = require("./dashboard");
 
 module.exports = {
   signUp: async (req, res) => {
@@ -49,10 +57,23 @@ module.exports = {
       throw new BadRequestError("Please provide email and password");
     }
 
-    const result = await User.findOne({ email: email }).populate({
-      path: "departement",
-      select: "namaDepartement",
-    });
+    const result = await User.findOne({ email: email })
+      .populate({
+        path: "departement",
+        select: "namaDepartement",
+      })
+      .populate({
+        path: "role",
+        select: "role",
+      });
+
+    const getDataWO = await CountAllWorkOrder();
+    const getDataUser = await CountAllUser();
+    const getDataDepartement = await CountAllGroup();
+    const getDataGroup = await CountAllGroup();
+    const getOnProgress = await CountOnProgress();
+    const getClose = await CountClose();
+    const getPending = await CountPending();
 
     if (!result) {
       throw new UnauthorizedError("Invalid Credentials");
@@ -74,9 +95,16 @@ module.exports = {
       namaDepartement: result.departement.namaDepartement,
       departementId: result.departement._id,
       userId: result._id,
-      role: result.role,
-      getNameManager: (checkAllUser.name = "Firman"),
-      getManager: (checkAllUser.id = 36),
+      role: result.role.role,
+      getNameManager: (checkAllUser.nama = "Arif Wibowo"),
+      getManager: (checkAllUser._id = "6580fffcd505f153dc1796d6"),
+      getAllWO: getDataWO,
+      getAllUser: getDataUser,
+      getAllDepartement: getDataDepartement,
+      getAllGroup: getDataGroup,
+      getAllOnProgress: getOnProgress,
+      getAllClose: getClose,
+      getAllPending: getPending,
     };
   },
 
@@ -91,7 +119,23 @@ module.exports = {
   },
 
   getAllUser: async (req, res) => {
-    const result = await User.find();
+    const result = await User.find()
+      .populate({
+        path: "role",
+        select: "_id role",
+      })
+      .populate({
+        path: "posisi",
+        select: "_id jabatan",
+      })
+      .populate({
+        path: "departement",
+        select: "_id namaDepartement",
+      })
+      .populate({
+        path: "group",
+        select: "_id namaGroup",
+      });
 
     return result;
   },
@@ -101,7 +145,23 @@ module.exports = {
 
     const result = await User.findOne({
       _id: id,
-    });
+    })
+      .populate({
+        path: "role",
+        select: "_id role",
+      })
+      .populate({
+        path: "posisi",
+        select: "_id jabatan",
+      })
+      .populate({
+        path: "departement",
+        select: "_id namaDepartement",
+      })
+      .populate({
+        path: "group",
+        select: "_id namaGroup",
+      });
 
     if (!result) throw new NotFoundError(`Tidak ada User dengan id :  ${id}`);
 
@@ -113,10 +173,6 @@ module.exports = {
 
     const { nama, email, posisi, role, password, departement, group } =
       req.body;
-
-    const check = await User.findOne({ role, _id: { $ne: id } });
-
-    if (check) throw new BadRequestError("nama ruser duplikat");
 
     const result = await User.findOneAndUpdate(
       { _id: id },

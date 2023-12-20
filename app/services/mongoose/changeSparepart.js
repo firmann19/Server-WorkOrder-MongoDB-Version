@@ -147,6 +147,6 @@ module.exports = {
 
     await checkStatusPengajuan.save();
 
-    return result;
+    return checkStatusPengajuan;
   },
 };

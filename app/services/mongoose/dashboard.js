@@ -35,6 +35,12 @@ module.exports = {
 
         return CountClose;
     },
+    CountPending: async (req, res) => {
+      const CountPending = await Checkout.countDocuments({StatusPengerjaan: "Pending"});
+
+      return CountPending;
+  },
+
     ITUserPerformance: async (req, res) => {
       // Mendapatkan informasi user di departemen IT
       const ITUsers = await User.find({ Departement: "IT" });

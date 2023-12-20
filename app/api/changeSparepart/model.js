@@ -3,14 +3,16 @@ const mongoose = require("mongoose");
 const ChangeSparepartSchema = new mongoose.Schema(
   {
     userRequestWO: {
-      type: mongoose.Types.ObjectId,
-      ref: "CheckoutWO",
-      required: true,
+      type: String,
+      required: [true, "Nama User harus diisi"],
+      minlength: 3,
+      maxlength: 50,
     },
     departementUser: {
-      type: mongoose.Types.ObjectId,
-      ref: "CheckoutWO",
-      required: true,
+      type: String,
+      required: [true, "Nama Departement harus diisi"],
+      minlength: 3,
+      maxlength: 50,
     },
     namaSparepart: {
       type: String,

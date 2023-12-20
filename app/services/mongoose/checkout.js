@@ -40,7 +40,7 @@ module.exports = {
       UserApprove,
       StatusWO,
       otp: Math.floor(Math.random() * 9999),
-      date_requestWO: new Date(),
+      Date_RequestWO: new Date(),
     });
 
     await verifMail(getEmail, createCheckout);
@@ -128,7 +128,7 @@ module.exports = {
         GantiSparepart,
         StaffIT,
         HeadIT,
-        date_completionWO: new Date(),
+        Date_CompletionWO: new Date(),
       },
       { new: true, runValidators: true }
     );
