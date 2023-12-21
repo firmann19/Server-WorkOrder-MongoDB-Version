@@ -3,6 +3,11 @@ const bcrypt = require("bcrypt");
 
 const UserSchema = new mongoose.Schema(
   {
+    image: {
+      type: mongoose.Types.ObjectId,
+      ref: "Image",
+      required: true,
+    },
     nama: {
       type: String,
       required: [true, "nama user harus diisi"],

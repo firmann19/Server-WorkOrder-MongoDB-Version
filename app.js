@@ -15,6 +15,7 @@ const userRouter = require("./app/api/user/router");
 const checkoutRouter = require("./app/api/checkoutWO/router");
 const changeSparepartRouter = require("./app/api/changeSparepart/router");
 const dashboardRouter = require("./app/api/dashboard/router");
+const imagesRouter = require("./app/api/images/router");
 
 app.use(cors());
 app.use(logger("dev"));
@@ -38,5 +39,6 @@ app.use(userRouter);
 app.use(checkoutRouter);
 app.use(changeSparepartRouter);
 app.use(dashboardRouter);
+app.use(imagesRouter);
 
 module.exports = app;

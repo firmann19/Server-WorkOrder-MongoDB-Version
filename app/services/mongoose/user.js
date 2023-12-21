@@ -13,10 +13,11 @@ const {
   CountClose,
   CountPending,
 } = require("./dashboard");
+const { checkingImage } = require("./images");
 
 module.exports = {
   signUp: async (req, res) => {
-    const { nama, email, posisi, role, password, departement, group } =
+    const { image, nama, email, posisi, role, password, departement, group } =
       req.body;
 
     //Cek kondisi
@@ -36,7 +37,10 @@ module.exports = {
       throw new BadRequestError("Departement belum di input");
     }
 
+    await checkingImage(image);
+
     const createdUser = await User.create({
+      image,
       nama,
       email,
       posisi,
@@ -65,6 +69,10 @@ module.exports = {
       .populate({
         path: "role",
         select: "role",
+      })
+      .populate({
+        path: "image",
+        select: "_id name",
       });
 
     const getDataWO = await CountAllWorkOrder();
@@ -105,6 +113,7 @@ module.exports = {
       getAllOnProgress: getOnProgress,
       getAllClose: getClose,
       getAllPending: getPending,
+      image: result.image.name,
     };
   },
 
@@ -120,6 +129,10 @@ module.exports = {
 
   getAllUser: async (req, res) => {
     const result = await User.find()
+      .populate({
+        path: "image",
+        select: "_id name",
+      })
       .populate({
         path: "role",
         select: "_id role",
@@ -147,6 +160,10 @@ module.exports = {
       _id: id,
     })
       .populate({
+        path: "image",
+        select: "_id name",
+      })
+      .populate({
         path: "role",
         select: "_id role",
       })
@@ -171,12 +188,13 @@ module.exports = {
   updateUser: async (req, res) => {
     const { id } = req.params;
 
-    const { nama, email, posisi, role, password, departement, group } =
+    const { image, nama, email, posisi, role, password, departement, group } =
       req.body;
 
     const result = await User.findOneAndUpdate(
       { _id: id },
       {
+        image,
         nama,
         email,
         posisi,
