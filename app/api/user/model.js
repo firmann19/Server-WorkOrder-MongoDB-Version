@@ -24,7 +24,6 @@ const UserSchema = new mongoose.Schema(
       type: String,
       required: [true, "Password harus diisi"],
       minlength: 8,
-      maxlength: 50,
     },
     departement: {
       type: mongoose.Types.ObjectId,
@@ -53,6 +52,14 @@ const UserSchema = new mongoose.Schema(
 UserSchema.pre("save", async function (next) {
   const User = this;
   if (User.isModified("password")) {
+    User.password = await bcrypt.hash(User.password, 12);
+  }
+  next();
+});
+
+UserSchema.pre("findOneAndUpdate", async function (next) {
+  const User = this._update;
+  if (User.password) {
     User.password = await bcrypt.hash(User.password, 12);
   }
   next();

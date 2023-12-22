@@ -105,7 +105,7 @@ module.exports = {
       userId: result._id,
       role: result.role.role,
       getNameManager: (checkAllUser.nama = "Arif Wibowo"),
-      getManager: (checkAllUser._id = "6580fffcd505f153dc1796d6"),
+      getManager: (checkAllUser._id = "6584f740119a8a506c0025f5"),
       getAllWO: getDataWO,
       getAllUser: getDataUser,
       getAllDepartement: getDataDepartement,
