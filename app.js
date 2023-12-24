@@ -17,6 +17,10 @@ const changeSparepartRouter = require("./app/api/changeSparepart/router");
 const dashboardRouter = require("./app/api/dashboard/router");
 const imagesRouter = require("./app/api/images/router");
 
+// middlewares
+const notFoundMiddleware = require("./app/middlewares/not-found");
+const handleErrorMiddleware = require("./app/middlewares/handler-error");
+
 app.use(cors());
 app.use(logger("dev"));
 app.use(express.json());
@@ -40,5 +44,9 @@ app.use(checkoutRouter);
 app.use(changeSparepartRouter);
 app.use(dashboardRouter);
 app.use(imagesRouter);
+
+// middlewares
+app.use(notFoundMiddleware);
+app.use(handleErrorMiddleware);
 
 module.exports = app;

@@ -38,7 +38,7 @@ const authenticateUser = async (req, res, next) => {
 
 const authorizeRoles = (...roles) => {
   return (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
+    if (!roles.includes(req.user.role.role)) {
       throw new UnauthorizedError("Unauthorized to access this route");
     }
     next();

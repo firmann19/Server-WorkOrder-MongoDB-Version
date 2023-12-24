@@ -8,14 +8,45 @@ const {
   AllClose,
   AllITPerformance,
 } = require("./controller");
+const { authenticateUser, authorizeRoles } = require("../../middlewares/auth");
 const router = express();
 
-router.get("/allworkorder", AllWorkOrder);
-router.get("/alldepartement", AllDepartement);
-router.get("/allgroup", AllGroup);
-router.get("/alluser", AllUser);
-router.get("/allonprogress", AllOnProgress);
-router.get("/allclose", AllClose);
-router.get("/allitperformance", AllITPerformance);
+router.get(
+  "/allworkorder",
+  authenticateUser,
+  authorizeRoles("Staff IT", "Manager IT"),
+  AllWorkOrder
+);
+router.get(
+  "/alldepartement",
+  authenticateUser,
+  authorizeRoles("Staff IT", "Manager IT"),
+  AllDepartement
+);
+router.get(
+  "/allgroup",
+  authenticateUser,
+  authorizeRoles("Staff IT", "Manager IT"),
+  AllGroup
+);
+router.get(
+  "/alluser",
+  authenticateUser,
+  authorizeRoles("Staff IT", "Manager IT"),
+  AllUser
+);
+router.get(
+  "/allonprogress",
+  authenticateUser,
+  authorizeRoles("Staff IT", "Manager IT"),
+  AllOnProgress
+);
+router.get(
+  "/allclose",
+  authenticateUser,
+  authorizeRoles("Staff IT", "Manager IT"),
+  AllClose
+);
+router.get("/it-user-performance", authenticateUser, AllITPerformance);
 
 module.exports = router;

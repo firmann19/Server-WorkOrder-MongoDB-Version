@@ -27,6 +27,7 @@ const index = async (req, res, next) => {
       data: result,
     });
   } catch (error) {
+    console.log(error)
     next(error);
   }
 };

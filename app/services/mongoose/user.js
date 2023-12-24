@@ -105,7 +105,7 @@ module.exports = {
       userId: result._id,
       role: result.role.role,
       getNameManager: (checkAllUser.nama = "Arif Wibowo"),
-      getManager: (checkAllUser._id = "6584f740119a8a506c0025f5"),
+      getManager: (checkAllUser._id = "65852c81f813056993c1815a"),
       getAllWO: getDataWO,
       getAllUser: getDataUser,
       getAllDepartement: getDataDepartement,
@@ -119,16 +119,30 @@ module.exports = {
 
   getAllApprove: async (req, res) => {
     const { departement } = req.user;
-    //console.log('Departement', departement)
 
     const getAllApproveUsers = await User.find({ departement: departement });
-    //console.log("Result", getAllApproveUsers)
 
     return getAllApproveUsers;
   },
 
   getAllUser: async (req, res) => {
-    const result = await User.find()
+    const {keyword, departement, group} = req.query;
+
+    let condition = {}
+
+    if (keyword) {
+      condition = { ...condition, nama: { $regex: keyword, $options: "i" } };
+    }
+
+    if (departement) {
+      condition = { ...condition, departement: departement };
+    }
+
+    if (group) {
+      condition = { ...condition, group: group };
+    }
+
+    const result = await User.find(condition)
       .populate({
         path: "image",
         select: "_id name",

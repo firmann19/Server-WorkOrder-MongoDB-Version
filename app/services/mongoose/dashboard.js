@@ -4,76 +4,82 @@ const User = require("../../api/user/model");
 const Checkout = require("../../api/checkoutWO/model");
 
 module.exports = {
-    CountAllWorkOrder: async (req, res) => {
-        const CountCheckout = await Checkout.countDocuments();
+  CountAllWorkOrder: async (req, res) => {
+    const CountCheckout = await Checkout.countDocuments();
 
-        return CountCheckout;
-    },
-    CountAllDepartement: async (req, res) => {
-        const CountDepartement = await Departement.countDocuments();
+    return CountCheckout;
+  },
+  CountAllDepartement: async (req, res) => {
+    const CountDepartement = await Departement.countDocuments();
 
-        return CountDepartement;
-    },
-    CountAllGroup: async (req, res) => {
-        const CountGroup = await Group.countDocuments();
+    return CountDepartement;
+  },
+  CountAllGroup: async (req, res) => {
+    const CountGroup = await Group.countDocuments();
 
-        return CountGroup;
-    },
-    
-    CountAllUser: async (req, res) => {
-        const CountUser = await User.countDocuments();
-
-        return CountUser;
-    },
-    CountOnProgress: async (req, res) => {
-        const CountOnProgress = await Checkout.countDocuments({StatusPengerjaan: "OnProgress"});
-
-        return CountOnProgress;
-    },
-    CountClose: async (req, res) => {
-        const CountClose = await Checkout.countDocuments({StatusPengerjaan: "Close"});
-
-        return CountClose;
-    },
-    CountPending: async (req, res) => {
-      const CountPending = await Checkout.countDocuments({StatusPengerjaan: "Pending"});
-
-      return CountPending;
+    return CountGroup;
   },
 
-    ITUserPerformance: async (req, res) => {
-      // Mendapatkan informasi user di departemen IT
-      const ITUsers = await User.find({ Departement: "IT" });
+  CountAllUser: async (req, res) => {
+    const CountUser = await User.countDocuments();
 
-      // Inisialisasi objek untuk menyimpan hasil perhitungan untuk setiap user
-      const userPerformances = [];
+    return CountUser;
+  },
+  CountOnProgress: async (req, res) => {
+    const CountOnProgress = await Checkout.countDocuments({
+      StatusPengerjaan: "OnProgress",
+    });
 
-      // Loop melalui setiap user di departemen IT
-      for (const user of ITUsers) {
-        // Menghitung jumlah dokumen Checkout untuk user tertentu
-        const totalCheckouts = await Checkout.countDocuments({ User: user._id });
+    return CountOnProgress;
+  },
+  CountClose: async (req, res) => {
+    const CountClose = await Checkout.countDocuments({
+      StatusPengerjaan: "Close",
+    });
 
-        // Menghitung jumlah dokumen Checkout dengan status "OnProgress" untuk user tertentu
-        const countOnProgress = await Checkout.countDocuments({
-          User: user._id,
-          StatusPengerjaan: "OnProgress",
-        });
+    return CountClose;
+  },
+  CountPending: async (req, res) => {
+    const CountPending = await Checkout.countDocuments({
+      StatusPengerjaan: "Pending",
+    });
 
-        // Menghitung jumlah dokumen Checkout dengan status "Close" untuk user tertentu
-        const countClose = await Checkout.countDocuments({
-          User: user._id,
-          StatusPengerjaan: "Close",
-        });
+    return CountPending;
+  },
 
-        // Menambahkan informasi performa user ke dalam array
-        userPerformances.push({
-          userId: user._id,
-          userName: user.nama,
-          totalCheckouts,
-          countOnProgress,
-          countClose,
-        });
-      }
-    }
+  ITUserPerformance: async (req, res) => {
+    const userPerformance = await Checkout.aggregate([
+      {
+        $match: {
+          $or: [{ HeadIT: { $exists: true } }, { StaffIT: { $exists: true } }],
+        },
+      },
+      {
+        $group: {
+          _id: "$StatusPengerjaan",
+          count: { $sum: 1 },
+        },
+      },
+    ]);
 
-}
+    // Ambil semua status yang terlibat dalam work order
+    const status = userPerformance.map((result) => result._id);
+
+    // Ambil semua nama pengguna (user) berdasarkan status
+    const userName = await User.find({ status: { $in: status } });
+
+    // Gabungkan hasil aggregasi kinerja dengan nama pengguna (user)
+    const finalResult = userPerformance.map((result) => {
+      const user = userName.find((u) => u._status === result._id);
+      console.log("result._id:", result._id);
+      console.log("user.status:", user ? user.status : "undefined");
+      return {
+        status: result._id,
+        count: result.count,
+        userName: user ? user.nama : "Unknown User",
+      };
+    });
+
+    return finalResult;
+  },
+};

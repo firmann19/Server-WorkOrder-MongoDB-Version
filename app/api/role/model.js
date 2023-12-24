@@ -4,9 +4,8 @@ const RoleSchema = new mongoose.Schema(
   {
     role: {
       type: String,
-      required: [true, "role harus diisi"],
-      minlength: 2,
-      maxlength: 50,
+      enum: ["User", "Staff IT", "Manager IT"],
+      default: "User",
     },
   },
   { timestamps: true }

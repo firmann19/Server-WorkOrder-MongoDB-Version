@@ -49,7 +49,19 @@ module.exports = {
   },
 
   getAllCheckout: async (req, res) => {
-    const result = await Checkout.find()
+    const {keyword, Departement} = req.query;
+
+    let condition = {}
+
+    if (keyword) {
+      condition = { ...condition, NamaBarang: { $regex: keyword, $options: "i" } };
+    }
+
+    if (Departement) {
+      condition = { ...condition, Departement: Departement };
+    }
+
+    const result = await Checkout.find(condition)
       .populate({
         path: "UserApprove",
         select: "_id nama",
@@ -106,6 +118,22 @@ module.exports = {
       throw new NotFoundError(`Tidak ada Checkout dengan id :  ${id}`);
 
     return result;
+  },
+
+  getCheckoutByIdUser: async (req, res) => {
+    const { id } = req.user;
+
+    const getCheckoutByIdUser = await Checkout.find({ UserRequest: id })
+      .populate({
+        path: "UserRequest",
+        select: "_id nama",
+      })
+      .populate({
+        path: "Departement",
+        select: "_id namaDepartement",
+      });
+
+    return getCheckoutByIdUser;
   },
 
   updateCheckout: async (req, res) => {

@@ -17,7 +17,9 @@ module.exports = {
   },
 
   getAllDepartement: async (req, res) => {
-    const { keyword } = req.query;
+   const { keyword } = req.query;
+
+    let condition = {};
 
     if (keyword) {
       condition = {
@@ -26,7 +28,7 @@ module.exports = {
       };
     }
 
-    const result = await Departement.find();
+    const result = await Departement.find(condition);
 
     return result;
   },

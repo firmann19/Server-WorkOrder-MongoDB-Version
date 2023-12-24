@@ -19,6 +19,8 @@ module.exports = {
   getAllGroup: async (req, res) => {
     const { keyword } = req.query;
 
+    let condition = {};
+
     if (keyword) {
       condition = {
         ...condition,
@@ -26,7 +28,7 @@ module.exports = {
       };
     }
 
-    const result = await Group.find();
+    const result = await Group.find(condition);
 
     return result;
   },
