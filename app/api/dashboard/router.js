@@ -6,7 +6,6 @@ const {
   AllUser,
   AllOnProgress,
   AllClose,
-  AllITPerformance,
 } = require("./controller");
 const { authenticateUser, authorizeRoles } = require("../../middlewares/auth");
 const router = express();
@@ -47,6 +46,5 @@ router.get(
   authorizeRoles("Staff IT", "Manager IT"),
   AllClose
 );
-router.get("/it-user-performance", authenticateUser, AllITPerformance);
 
 module.exports = router;

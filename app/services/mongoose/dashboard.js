@@ -46,40 +46,4 @@ module.exports = {
 
     return CountPending;
   },
-
-  ITUserPerformance: async (req, res) => {
-    const userPerformance = await Checkout.aggregate([
-      {
-        $match: {
-          $or: [{ HeadIT: { $exists: true } }, { StaffIT: { $exists: true } }],
-        },
-      },
-      {
-        $group: {
-          _id: "$StatusPengerjaan",
-          count: { $sum: 1 },
-        },
-      },
-    ]);
-
-    // Ambil semua status yang terlibat dalam work order
-    const status = userPerformance.map((result) => result._id);
-
-    // Ambil semua nama pengguna (user) berdasarkan status
-    const userName = await User.find({ status: { $in: status } });
-
-    // Gabungkan hasil aggregasi kinerja dengan nama pengguna (user)
-    const finalResult = userPerformance.map((result) => {
-      const user = userName.find((u) => u._status === result._id);
-      console.log("result._id:", result._id);
-      console.log("user.status:", user ? user.status : "undefined");
-      return {
-        status: result._id,
-        count: result.count,
-        userName: user ? user.nama : "Unknown User",
-      };
-    });
-
-    return finalResult;
-  },
 };
