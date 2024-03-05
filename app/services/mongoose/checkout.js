@@ -49,12 +49,15 @@ module.exports = {
   },
 
   getAllCheckout: async (req, res) => {
-    const {keyword, Departement} = req.query;
+    const { keyword, Departement } = req.query;
 
-    let condition = {}
+    let condition = {};
 
     if (keyword) {
-      condition = { ...condition, NamaBarang: { $regex: keyword, $options: "i" } };
+      condition = {
+        ...condition,
+        NamaBarang: { $regex: keyword, $options: "i" },
+      };
     }
 
     if (Departement) {
@@ -188,23 +191,39 @@ module.exports = {
     const { id } = req.params;
     const { otp } = req.body;
 
+    // Temukan work order berdasarkan ID
+    const workOrder = await Checkout.findById(id);
+
+    // Jika work order tidak ditemukan, lemparkan error
+    if (!workOrder) {
+      throw new NotFoundError(`Tidak ada WorkOrder dengan id: ${id}`);
+    }
+
+    // Jika OTP yang dimasukkan tidak cocok, kembalikan respon dengan pesan kesalahan
+    if (workOrder.otp !== otp) {
+      throw new BadRequestError("Kode OTP salah");
+    }
+
+    // Jika OTP cocok, update status menjadi "Approve"
     const result = await Checkout.findOneAndUpdate(
       {
         _id: id,
       },
       {
         $set: {
-          otp,
           StatusWO: "Approve",
         },
       },
       { new: true, runValidators: true }
     );
 
-    if (!result)
-      throw new NotFoundError(`Tidak ada WorkOrder dengan id :  ${id}`);
+    // Jika tidak ada hasil dari operasi update, lemparkan error
+    if (!result) {
+      throw new Error("Gagal mengubah status WorkOrder");
+    }
 
-    return result;
+    // Jika berhasil, kembalikan respon dengan hasil update
+    return result
   },
 
   changeStatusPengerjaan: async (req, res) => {
