@@ -113,7 +113,7 @@ module.exports = {
       getAllOnProgress: getOnProgress,
       getAllClose: getClose,
       getAllPending: getPending,
-      image: result.image.name,
+      image: result.image.name
     };
   },
 

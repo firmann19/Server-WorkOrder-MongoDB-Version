@@ -9,6 +9,7 @@ const {
   StatusPengerjaan,
   StatusProgress,
   getCheckoutIdUser,
+  getCheckoutDepartementUser,
 } = require("./controller");
 const { authenticateUser, authorizeRoles } = require("../../middlewares/auth");
 const router = express();
@@ -30,6 +31,12 @@ router.get(
   authenticateUser,
   //authorizeRoles("User", "Staff IT", "Manager IT"),
   getCheckoutIdUser
+);
+router.get(
+  "/checkoutbydepartementuser",
+  authenticateUser,
+  //authorizeRoles("User", "Staff IT", "Manager IT"),
+  getCheckoutDepartementUser
 );
 router.get(
   "/checkout/:id",

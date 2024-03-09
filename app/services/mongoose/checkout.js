@@ -139,6 +139,24 @@ module.exports = {
     return getCheckoutByIdUser;
   },
 
+  getCheckoutByDepartementUser: async (req, res) => {
+    const { departement } = req.user;
+
+    const getCheckoutByDepartementUser = await Checkout.find({
+      Departement: departement,
+    })
+      .populate({
+        path: "UserRequest",
+        select: "_id nama posisi",
+      })
+      .populate({
+        path: "Departement",
+        select: "_id namaDepartement",
+      });
+
+    return getCheckoutByDepartementUser;
+  },
+
   updateCheckout: async (req, res) => {
     const { id } = req.params;
     const { Tindakan, GantiSparepart, HeadIT, StaffIT } = req.body;
@@ -223,7 +241,7 @@ module.exports = {
     }
 
     // Jika berhasil, kembalikan respon dengan hasil update
-    return result
+    return result;
   },
 
   changeStatusPengerjaan: async (req, res) => {

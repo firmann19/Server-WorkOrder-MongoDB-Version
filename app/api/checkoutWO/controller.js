@@ -9,6 +9,7 @@ const {
   changeStatusProgress,
   changeStatusPengerjaan,
   getCheckoutByIdUser,
+  getCheckoutByDepartementUser,
 } = require("../../services/mongoose/checkout");
 
 const create = async (req, res, next) => {
@@ -39,6 +40,18 @@ const index = async (req, res, next) => {
 const getCheckoutIdUser = async (req, res, next) => {
   try {
     const result = await getCheckoutByIdUser(req);
+
+    res.status(StatusCodes.OK).json({
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getCheckoutDepartementUser = async (req, res, next) => {
+  try {
+    const result = await getCheckoutByDepartementUser(req);
 
     res.status(StatusCodes.OK).json({
       data: result,
@@ -130,4 +143,5 @@ module.exports = {
   StatusProgress,
   StatusPengerjaan,
   getCheckoutIdUser,
+  getCheckoutDepartementUser
 };
