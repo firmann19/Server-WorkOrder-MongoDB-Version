@@ -10,6 +10,7 @@ const {
   changeStatusPengerjaan,
   getCheckoutByIdUser,
   getCheckoutByDepartementUser,
+  rejectedApproved,
 } = require("../../services/mongoose/checkout");
 
 const create = async (req, res, next) => {
@@ -27,6 +28,7 @@ const create = async (req, res, next) => {
 const index = async (req, res, next) => {
   try {
     const result = await getAllCheckout(req);
+    console.log("test", result)
 
     res.status(StatusCodes.OK).json({
       data: result,
@@ -97,6 +99,19 @@ const destroy = async (req, res, next) => {
   }
 };
 
+const StatusRejected = async (req, res, next) => {
+  try {
+    const result = await rejectedApproved(req);
+
+    res.status(StatusCodes.OK).json({
+      data: result,
+    });
+  } catch (error) {
+    console.log(error)
+    next(error);
+  }
+};
+
 const StatusWO = async (req, res, next) => {
   try {
     const result = await changeStatusWo(req);
@@ -139,6 +154,7 @@ module.exports = {
   getOne,
   update,
   destroy,
+  StatusRejected,
   StatusWO,
   StatusProgress,
   StatusPengerjaan,

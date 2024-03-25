@@ -10,6 +10,7 @@ const {
   StatusProgress,
   getCheckoutIdUser,
   getCheckoutDepartementUser,
+  StatusRejected,
 } = require("./controller");
 const { authenticateUser, authorizeRoles } = require("../../middlewares/auth");
 const router = express();
@@ -51,6 +52,14 @@ router.put(
   update
 );
 router.delete("/checkout/:id", authenticateUser, destroy);
+
+router.put(
+  "/checkout/:id/statusrejected",
+  authenticateUser,
+  StatusRejected,
+  authorizeRoles("User")
+);
+
 router.put(
   "/checkout/:id/statuswo",
   authenticateUser,

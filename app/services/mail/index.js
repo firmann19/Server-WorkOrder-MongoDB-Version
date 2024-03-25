@@ -47,6 +47,23 @@ const DiketahuiWO = async (getEmail, data) => {
   }
 };
 
+const ApproveRejected = async (getEmail, data) => {
+  try {
+    let template = fs.readFileSync("app/views/email/approveRejected.html", "utf8");
+
+    let message = {
+      from: "'WorkOrder HTA' <no-reply@gmail.com>",
+      to: getEmail,
+      subject: "Work Order Approval Rejected",
+      html: Mustache.render(template, data),
+    };
+
+    return await transporter.sendMail(message);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 const ApproveSparepart = async (getEmail, data) => {
   try {
     let template = fs.readFileSync("app/views/email/approveSparepart.html", "utf8");
@@ -64,4 +81,4 @@ const ApproveSparepart = async (getEmail, data) => {
   }
 };
 
-module.exports = { verifMail, DiketahuiWO, ApproveSparepart };
+module.exports = { verifMail, DiketahuiWO, ApproveSparepart, ApproveRejected };

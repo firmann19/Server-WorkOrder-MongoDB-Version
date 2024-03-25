@@ -27,7 +27,7 @@ const CheckoutWOSchema = new mongoose.Schema(
     },
     StatusWO: {
       type: String,
-      enum: ["Approve", "Belum Approve"],
+      enum: ["Approve", "Belum Approve", "Ditolak"],
       default: "Belum Approve",
     },
     UserApprove: {

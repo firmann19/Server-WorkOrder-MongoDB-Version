@@ -1,9 +1,10 @@
 const Checkout = require("../../api/checkoutWO/model");
 const { NotFoundError, BadRequestError } = require("../../errors");
-const { verifMail, DiketahuiWO } = require("../mail");
+const { verifMail, DiketahuiWO, ApproveRejected } = require("../mail");
 const {
   getEmailApprove,
   getEmailConfirmation,
+  getEmailRejected,
 } = require("../repository/checkoutRepository");
 
 module.exports = {
@@ -64,7 +65,7 @@ module.exports = {
       condition = { ...condition, Departement: Departement };
     }
 
-    const result = await Checkout.find(condition)
+    const results = await Checkout.find(condition)
       .populate({
         path: "UserApprove",
         select: "_id nama",
@@ -84,9 +85,48 @@ module.exports = {
       .populate({
         path: "StaffIT",
         select: "_id nama",
-      });
+      })
 
-    return result;
+    // Iterate through each result to calculate the duration
+    const resultsWithDuration = results.map((result) => {
+      // Calculate duration if Date_RequestWO and Date_CompletionWO exist
+      if (result.Date_RequestWO && result.Date_CompletionWO) {
+        const startTime = new Date(result.Date_RequestWO);
+        const endTime = new Date(result.Date_CompletionWO);
+        const durationInMilliseconds = endTime - startTime;
+        // Convert duration to hours
+        const millisecondsPerDay = 1000 * 60 * 60;
+        const days = Math.floor(durationInMilliseconds / millisecondsPerDay);
+        const remainingMilliseconds =
+          durationInMilliseconds % millisecondsPerDay;
+        const hours = Math.floor(remainingMilliseconds / (1000 * 60 * 60));
+        const minutes = Math.floor(
+          (remainingMilliseconds % (1000 * 60 * 60)) / (1000 * 60)
+        );
+        const seconds = Math.floor(
+          (remainingMilliseconds % (1000 * 60)) / 1000
+        );
+
+        // Adding duration to the result object
+        return {
+          ...result.toObject(),
+          duration: {
+            days: days,
+            hours: hours,
+            minutes: minutes,
+            seconds: seconds,
+          },
+        };
+      } else {
+        // If either Date_RequestWO or Date_CompletionWO is missing, set duration to null
+        return {
+          ...result.toObject(),
+          duration: null,
+        };
+      }
+    });
+
+    return resultsWithDuration;
   },
 
   getOneCheckout: async (req, res) => {
@@ -203,6 +243,32 @@ module.exports = {
     await result.remove();
 
     return result;
+  },
+
+  rejectedApproved: async (req, res) => {
+    const { id } = req.params;
+    const { StatusWO, UserRequest } = req.body;
+
+    if (!["Belum Approve", "Ditolak"].includes(StatusWO)) {
+      throw new BadRequestError(
+        "Status work order harus Belum Approve, Ditolak"
+      );
+    }
+
+    // const getEmailUserRequest = await getEmailRejected({ UserRequest });
+
+    const checkStatus = await Checkout.findOne({ _id: id });
+
+    if (!checkStatus)
+      throw new NotFoundError(`Tidak ada WorkOrder dengan id :  ${id}`);
+
+    checkStatus.StatusWO = StatusWO;
+
+    await checkStatus.save();
+
+    // await ApproveRejected(getEmailUserRequest, checkStatus.StatusWO);
+
+    return checkStatus;
   },
 
   changeStatusWo: async (req, res) => {
