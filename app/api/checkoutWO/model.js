@@ -66,6 +66,10 @@ const CheckoutWOSchema = new mongoose.Schema(
     Date_CompletionWO: {
       type: Date,
     },
+    selectedAction: {
+      type: String,
+      enum: ["perbaikan", "pergantian", "request_data", "others"],
+    },
   },
   { timestamps: true }
 );

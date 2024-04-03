@@ -168,7 +168,6 @@ module.exports = {
         path: "StaffIT",
         select: "_id nama",
       });
-    console.log("test", result);
 
     if (!result)
       throw new NotFoundError(`Tidak ada Checkout dengan id :  ${id}`);

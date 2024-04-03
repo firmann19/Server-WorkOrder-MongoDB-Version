@@ -34,7 +34,6 @@ const index = async (req, res, next) => {
       data: result,
     });
   } catch (error) {
-    console.log(error);
     next(error);
   }
 };
@@ -71,6 +70,7 @@ const getOne = async (req, res, next) => {
       data: result,
     });
   } catch (error) {
+    console.log(error);
     next(error);
   }
 };
@@ -83,6 +83,7 @@ const update = async (req, res, next) => {
       data: result,
     });
   } catch (error) {
+    console.log(error)
     next(error);
   }
 };
