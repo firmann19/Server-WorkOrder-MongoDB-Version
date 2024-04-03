@@ -55,7 +55,58 @@ const ApproveRejected = async (getEmail, data) => {
       from: "'WorkOrder HTA' <no-reply@gmail.com>",
       to: getEmail,
       subject: "Work Order Approval Rejected",
-      html: Mustache.render(template, data),
+      html: Mustache.render(template, {NamaBarang: data.NamaBarang, KodeBarang: data.KodeBarang}),
+    };
+
+    return await transporter.sendMail(message);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const ApproveAccepted = async (getEmail, data) => {
+  try {
+    let template = fs.readFileSync("app/views/email/approveAccepted.html", "utf8");
+
+    let message = {
+      from: "'WorkOrder HTA' <no-reply@gmail.com>",
+      to: getEmail,
+      subject: "Work Order Approval Accepted",
+      html: Mustache.render(template, {NamaBarang: data.NamaBarang, KodeBarang: data.KodeBarang}),
+    };
+
+    return await transporter.sendMail(message);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const StatusOnProgress = async (getEmail, data) => {
+  try {
+    let template = fs.readFileSync("app/views/email/onProgressWO.html", "utf8");
+
+    let message = {
+      from: "'WorkOrder HTA' <no-reply@gmail.com>",
+      to: getEmail,
+      subject: "Work Order On Progress",
+      html: Mustache.render(template, {NamaBarang: data.NamaBarang, KodeBarang: data.KodeBarang}),
+    };
+
+    return await transporter.sendMail(message);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const StatusClose = async (getEmail, data) => {
+  try {
+    let template = fs.readFileSync("app/views/email/closeWO.html", "utf8");
+
+    let message = {
+      from: "'WorkOrder HTA' <no-reply@gmail.com>",
+      to: getEmail,
+      subject: "Work Order Close",
+      html: Mustache.render(template, {NamaBarang: data.NamaBarang, KodeBarang: data.KodeBarang}),
     };
 
     return await transporter.sendMail(message);
@@ -81,4 +132,4 @@ const ApproveSparepart = async (getEmail, data) => {
   }
 };
 
-module.exports = { verifMail, DiketahuiWO, ApproveSparepart, ApproveRejected };
+module.exports = { verifMail, DiketahuiWO, ApproveSparepart, ApproveRejected, ApproveAccepted, StatusOnProgress, StatusClose };

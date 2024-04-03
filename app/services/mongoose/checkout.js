@@ -1,11 +1,19 @@
 const Checkout = require("../../api/checkoutWO/model");
+const User = require("../../api/user/model");
 const { NotFoundError, BadRequestError } = require("../../errors");
-const { verifMail, DiketahuiWO, ApproveRejected } = require("../mail");
+const {
+  verifMail,
+  DiketahuiWO,
+  ApproveRejected,
+  ApproveAccepted,
+  StatusOnProgress,
+  StatusClose,
+} = require("../mail");
 const {
   getEmailApprove,
   getEmailConfirmation,
-  getEmailRejected,
 } = require("../repository/checkoutRepository");
+// const io = require("socket.io")();
 
 module.exports = {
   createCheckout: async (req, res) => {
@@ -85,7 +93,7 @@ module.exports = {
       .populate({
         path: "StaffIT",
         select: "_id nama",
-      })
+      });
 
     // Iterate through each result to calculate the duration
     const resultsWithDuration = results.map((result) => {
@@ -121,7 +129,12 @@ module.exports = {
         // If either Date_RequestWO or Date_CompletionWO is missing, set duration to null
         return {
           ...result.toObject(),
-          duration: null,
+          duration: {
+            days: 0,
+            hours: 0,
+            minutes: 0,
+            seconds: 0,
+          },
         };
       }
     });
@@ -247,7 +260,7 @@ module.exports = {
 
   rejectedApproved: async (req, res) => {
     const { id } = req.params;
-    const { StatusWO, UserRequest } = req.body;
+    const { StatusWO } = req.body;
 
     if (!["Belum Approve", "Ditolak"].includes(StatusWO)) {
       throw new BadRequestError(
@@ -255,18 +268,46 @@ module.exports = {
       );
     }
 
-    // const getEmailUserRequest = await getEmailRejected({ UserRequest });
-
-    const checkStatus = await Checkout.findOne({ _id: id });
+    const checkStatus = await Checkout.findOne({ _id: id }).populate(
+      "UserRequest"
+    );
 
     if (!checkStatus)
       throw new NotFoundError(`Tidak ada WorkOrder dengan id :  ${id}`);
 
+    //Dapatkan ID pengguna dari properti UserRequest
+    const userId = checkStatus.UserRequest;
+
+    //Temukan pengguna yang sesuai berdasarkan ID pengguna
+    const user = await User.findById(userId);
+
+    if (!user)
+      throw new NotFoundError(`Tidak ada pengguna dengan id :  ${userId}`);
+
+    //Dapatkan email pengguna dari model User
+    const userEmail = user.email;
+
+    //Update StatusWO pada dokumen Checkout
     checkStatus.StatusWO = StatusWO;
+
+    const namaBarang = checkStatus.NamaBarang;
+    const kodeBarang = checkStatus.KodeBarang;
 
     await checkStatus.save();
 
-    // await ApproveRejected(getEmailUserRequest, checkStatus.StatusWO);
+    //Kirim email ke pengguna jika StatusWO adalah "Ditolak"
+    if (StatusWO === "Ditolak") {
+      await ApproveRejected(userEmail, {
+        NamaBarang: namaBarang,
+        KodeBarang: kodeBarang,
+      });
+    }
+
+    // // Kirim notifikasi ke klien yang terhubung melalui WebSocket
+    // io.emit("notification", {
+    //   message: `Work order ${checkStatus._id} telah diupdate menjadi ${StatusWO}`,
+    //   status: StatusWO,
+    // });
 
     return checkStatus;
   },
@@ -276,12 +317,24 @@ module.exports = {
     const { otp } = req.body;
 
     // Temukan work order berdasarkan ID
-    const workOrder = await Checkout.findById(id);
+    const workOrder = await Checkout.findById(id).populate("UserRequest");
 
     // Jika work order tidak ditemukan, lemparkan error
     if (!workOrder) {
       throw new NotFoundError(`Tidak ada WorkOrder dengan id: ${id}`);
     }
+
+    //Dapatkan ID pengguna dari properti UserRequest
+    const userId = workOrder.UserRequest;
+
+    //Temukan pengguna yang sesuai berdasarkan ID pengguna
+    const user = await User.findById(userId);
+
+    if (!user)
+      throw new NotFoundError(`Tidak ada pengguna dengan id :  ${userId}`);
+
+    //Dapatkan email pengguna dari model User
+    const userEmail = user.email;
 
     // Jika OTP yang dimasukkan tidak cocok, kembalikan respon dengan pesan kesalahan
     if (workOrder.otp !== otp) {
@@ -306,6 +359,17 @@ module.exports = {
       throw new Error("Gagal mengubah status WorkOrder");
     }
 
+    const namaBarang = result.NamaBarang;
+    const kodeBarang = result.KodeBarang;
+
+    //Kirim email ke pengguna jika StatusWO adalah "Ditolak"
+    if (result.StatusWO === "Approve") {
+      await ApproveAccepted(userEmail, {
+        NamaBarang: namaBarang,
+        KodeBarang: kodeBarang,
+      });
+    }
+
     // Jika berhasil, kembalikan respon dengan hasil update
     return result;
   },
@@ -314,24 +378,69 @@ module.exports = {
     const { id } = req.params;
     const { StatusPengerjaan } = req.body;
 
-    if (!["Pending", "OnProgress"].includes(StatusPengerjaan)) {
-      throw new BadRequestError("Status pengerjaan harus Pending, onProgress");
+    if (!["Pending", "On Progress"].includes(StatusPengerjaan)) {
+      throw new BadRequestError("Status pengerjaan harus Pending, on Progress");
     }
 
-    const checkStatusPengerjaan = await Checkout.findOne({ _id: id });
+    const checkStatusPengerjaan = await Checkout.findOne({ _id: id }).populate(
+      "UserRequest"
+    );
 
     if (!checkStatusPengerjaan)
       throw new NotFoundError(`Tidak ada WorkOrder dengan id :  ${id}`);
 
+    //Dapatkan ID pengguna dari properti UserRequest
+    const userId = checkStatusPengerjaan.UserRequest;
+
+    //Temukan pengguna yang sesuai berdasarkan ID pengguna
+    const user = await User.findById(userId);
+
+    if (!user)
+      throw new NotFoundError(`Tidak ada pengguna dengan id :  ${userId}`);
+
+    //Dapatkan email pengguna dari model User
+    const userEmail = user.email;
+
     checkStatusPengerjaan.StatusPengerjaan = StatusPengerjaan;
 
+    const namaBarang = checkStatusPengerjaan.NamaBarang;
+    const kodeBarang = checkStatusPengerjaan.KodeBarang;
+
     await checkStatusPengerjaan.save();
+
+    //Kirim email ke pengguna jika StatusWO adalah "Ditolak"
+    if (StatusPengerjaan === "On Progress") {
+      await StatusOnProgress(userEmail, {
+        NamaBarang: namaBarang,
+        KodeBarang: kodeBarang,
+      });
+    }
 
     return checkStatusPengerjaan;
   },
 
   changeStatusProgress: async (req, res) => {
     const { id } = req.params;
+
+    // Temukan work order berdasarkan ID
+    const workOrder = await Checkout.findById(id).populate("UserRequest");
+
+    // Jika work order tidak ditemukan, lemparkan error
+    if (!workOrder) {
+      throw new NotFoundError(`Tidak ada WorkOrder dengan id: ${id}`);
+    }
+
+    //Dapatkan ID pengguna dari properti UserRequest
+    const userId = workOrder.UserRequest;
+
+    //Temukan pengguna yang sesuai berdasarkan ID pengguna
+    const user = await User.findById(userId);
+
+    if (!user)
+      throw new NotFoundError(`Tidak ada pengguna dengan id :  ${userId}`);
+
+    //Dapatkan email pengguna dari model User
+    const userEmail = user.email;
 
     const result = await Checkout.findOneAndUpdate(
       {
@@ -344,6 +453,17 @@ module.exports = {
       },
       { new: true, runValidators: true }
     );
+
+    const namaBarang = result.NamaBarang;
+    const kodeBarang = result.KodeBarang;
+
+    //Kirim email ke pengguna jika StatusWO adalah "Ditolak"
+    if (result.StatusWO === "Approve") {
+      await StatusClose(userEmail, {
+        NamaBarang: namaBarang,
+        KodeBarang: kodeBarang,
+      });
+    }
 
     return result;
   },

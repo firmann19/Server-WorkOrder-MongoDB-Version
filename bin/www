@@ -7,6 +7,7 @@
 var app = require("../app");
 var debug = require("debug")("server-workorder:server");
 var http = require("http");
+// const socketIO = require('socket.io');
 
 // import package db
 const db = require("../app/db");
@@ -23,6 +24,31 @@ app.set("port", port);
  */
 
 var server = http.createServer(app);
+
+// /**
+//  * Create WebSocket server.
+//  */
+// const io = socketIO(server);
+
+// /**
+//  * Event listener for WebSocket connection.
+//  */
+// io.on('connection', (socket) => {
+//   console.log('A user connected');
+
+//   // Handle chat messages
+//   socket.on('chat message', (msg) => {
+//     console.log('message: ' + msg);
+//     // Broadcast message to all connected clients
+//     io.emit('chat message', msg);
+//   });
+
+//   // Handle disconnection
+//   socket.on('disconnect', () => {
+//     console.log('User disconnected');
+//   });
+// });
+
 
 // bila terjadi error saat connect ke mongdb maka akan tampil error diterminal
 db.on("error", function (err) {

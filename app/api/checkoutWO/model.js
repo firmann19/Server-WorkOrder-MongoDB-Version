@@ -52,7 +52,7 @@ const CheckoutWOSchema = new mongoose.Schema(
     },
     StatusPengerjaan: {
       type: String,
-      enum: ["Pending", "OnProgress", "Close"],
+      enum: ["Pending", "On Progress", "Close"],
       default: "Pending",
     },
     HeadIT: {

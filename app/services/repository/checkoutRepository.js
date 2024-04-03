@@ -10,9 +10,4 @@ module.exports = {
     const HeadITRecord = await User.findById(HeadIT);
     return HeadITRecord.email;
   },
-
-  getEmailRejected: async ({ UserRequest }) => {
-    const UserRequestRecord = await User.findById(UserRequest);
-    return UserRequestRecord.email;
-  },
 };
