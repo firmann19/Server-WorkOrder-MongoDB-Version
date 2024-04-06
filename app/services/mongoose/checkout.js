@@ -211,17 +211,19 @@ module.exports = {
 
   updateCheckout: async (req, res) => {
     const { id } = req.params;
-    const { Tindakan, GantiSparepart, HeadIT, StaffIT } = req.body;
-
-    //Cek kondisi request body
+    const { Tindakan, GantiSparepart, HeadIT, StaffIT, selectedAction } = req.body;
+  
+    // Cek kondisi request body
     if (!Tindakan) {
-      throw new BadRequestError("Mohon Input Nama Peralatan");
+      throw new BadRequestError("Mohon Input Keterangan Tindakan");
     } else if (!GantiSparepart) {
       throw new BadRequestError("Mohon Input Kode Peralatan");
+    } else if (!selectedAction) {
+      throw new BadRequestError("Mohon Pilih Tindakan");
     }
-
+  
     const getEmailHeadIT = await getEmailConfirmation({ HeadIT });
-
+  
     const result = await Checkout.findOneAndUpdate(
       { _id: id },
       {
@@ -230,15 +232,16 @@ module.exports = {
         StaffIT,
         HeadIT,
         Date_CompletionWO: new Date(),
+        selectedAction
       },
       { new: true, runValidators: true }
     );
-
+  
     if (!result)
       throw new NotFoundError(`Tidak ada checkout dengan id :  ${id}`);
-
+  
     await DiketahuiWO(getEmailHeadIT, result);
-
+  
     return result;
   },
 
