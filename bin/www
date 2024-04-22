@@ -6,11 +6,13 @@
 
 var app = require("../app");
 var debug = require("debug")("server-workorder:server");
-var http = require("http");
-// const socketIO = require('socket.io');
 
 // import package db
 const db = require("../app/db");
+const http = require("http");
+// const socketIo = require("socket.io");
+// const Checkout = require("../app/api/checkoutWO/model");
+// const User = require("../app/api/user/model");
 
 /**
  * Get port from environment and store in Express.
@@ -22,33 +24,60 @@ app.set("port", port);
 /**
  * Create HTTP server.
  */
-
 var server = http.createServer(app);
 
-// /**
-//  * Create WebSocket server.
-//  */
-// const io = socketIO(server);
-
-// /**
-//  * Event listener for WebSocket connection.
-//  */
-// io.on('connection', (socket) => {
-//   console.log('A user connected');
-
-//   // Handle chat messages
-//   socket.on('chat message', (msg) => {
-//     console.log('message: ' + msg);
-//     // Broadcast message to all connected clients
-//     io.emit('chat message', msg);
-//   });
-
-//   // Handle disconnection
-//   socket.on('disconnect', () => {
-//     console.log('User disconnected');
-//   });
+/**
+ * Create SocketIo.
+ */
+// const io = socketIo(server, {
+//   cors: {
+//     origin: "*",
+//     methods: ["GET", "POST"],
+//   },
 // });
 
+// io.on("connection", (socket) => {
+//   console.log("Client connected");
+
+//   // Mendengarkan notifikasi dari server ketika status work order berubah menjadi approve
+//   socket.on("workOrderApproved", async (workOrderId) => {
+//     try {
+//       // Temukan work order berdasarkan ID
+//       const workOrder = await Checkout.findById(id).populate("UserRequest");
+
+//       // Jika work order tidak ditemukan, lemparkan error
+//       if (!workOrder) {
+//         throw new NotFoundError(`Tidak ada WorkOrder dengan id: ${id}`);
+//       }
+
+//       //Dapatkan ID pengguna dari properti UserRequest
+//       const userId = workOrder.UserRequest;
+
+//       //Temukan pengguna yang sesuai berdasarkan ID pengguna
+//       const dataUser = await User.findById(userId);
+
+//       // Kirim notifikasi ke setiap pengguna terkait yang bukan UserApprove
+//       workOrder.users.forEach(() => {
+//         if (dataUser !== "UserApprove") {
+//           socket.emit("workOrderStatusChanged", {
+//             workOrderId: workOrderId,
+//             newStatus: workOrder.status,
+//           });
+//         }
+//       });
+//     } catch (error) {
+//       console.error(
+//         "Error while sending work order approval notification:",
+//         error
+//       );
+//     }
+//   });
+
+//   // Handle koneksi yang terputus
+//   socket.on("disconnect", () => {
+//     console.log("Client disconnected");
+//   });
+// });
 
 // bila terjadi error saat connect ke mongdb maka akan tampil error diterminal
 db.on("error", function (err) {

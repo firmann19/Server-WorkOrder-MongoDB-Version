@@ -13,7 +13,6 @@ const {
   getEmailApprove,
   getEmailConfirmation,
 } = require("../repository/checkoutRepository");
-// const io = require("socket.io")();
 
 module.exports = {
   createCheckout: async (req, res) => {
@@ -211,8 +210,9 @@ module.exports = {
 
   updateCheckout: async (req, res) => {
     const { id } = req.params;
-    const { Tindakan, GantiSparepart, HeadIT, StaffIT, selectedAction } = req.body;
-  
+    const { Tindakan, GantiSparepart, HeadIT, StaffIT, selectedAction } =
+      req.body;
+
     // Cek kondisi request body
     if (!Tindakan) {
       throw new BadRequestError("Mohon Input Keterangan Tindakan");
@@ -221,9 +221,9 @@ module.exports = {
     } else if (!selectedAction) {
       throw new BadRequestError("Mohon Pilih Tindakan");
     }
-  
+
     const getEmailHeadIT = await getEmailConfirmation({ HeadIT });
-  
+
     const result = await Checkout.findOneAndUpdate(
       { _id: id },
       {
@@ -232,16 +232,16 @@ module.exports = {
         StaffIT,
         HeadIT,
         Date_CompletionWO: new Date(),
-        selectedAction
+        selectedAction,
       },
       { new: true, runValidators: true }
     );
-  
+
     if (!result)
       throw new NotFoundError(`Tidak ada checkout dengan id :  ${id}`);
-  
+
     await DiketahuiWO(getEmailHeadIT, result);
-  
+
     return result;
   },
 
@@ -305,12 +305,6 @@ module.exports = {
       });
     }
 
-    // // Kirim notifikasi ke klien yang terhubung melalui WebSocket
-    // io.emit("notification", {
-    //   message: `Work order ${checkStatus._id} telah diupdate menjadi ${StatusWO}`,
-    //   status: StatusWO,
-    // });
-
     return checkStatus;
   },
 
@@ -364,7 +358,7 @@ module.exports = {
     const namaBarang = result.NamaBarang;
     const kodeBarang = result.KodeBarang;
 
-    //Kirim email ke pengguna jika StatusWO adalah "Ditolak"
+    //Kirim email ke pengguna jika StatusWO adalah "Approve"
     if (result.StatusWO === "Approve") {
       await ApproveAccepted(userEmail, {
         NamaBarang: namaBarang,
@@ -372,7 +366,6 @@ module.exports = {
       });
     }
 
-    // Jika berhasil, kembalikan respon dengan hasil update
     return result;
   },
 
@@ -410,7 +403,7 @@ module.exports = {
 
     await checkStatusPengerjaan.save();
 
-    //Kirim email ke pengguna jika StatusWO adalah "Ditolak"
+    //Kirim email ke pengguna jika StatusWO adalah "On Progress"
     if (StatusPengerjaan === "On Progress") {
       await StatusOnProgress(userEmail, {
         NamaBarang: namaBarang,
@@ -459,8 +452,8 @@ module.exports = {
     const namaBarang = result.NamaBarang;
     const kodeBarang = result.KodeBarang;
 
-    //Kirim email ke pengguna jika StatusWO adalah "Ditolak"
-    if (result.StatusWO === "Approve") {
+    //Kirim email ke pengguna jika StatusWO adalah "Close"
+    if (result.StatusWO === "Close") {
       await StatusClose(userEmail, {
         NamaBarang: namaBarang,
         KodeBarang: kodeBarang,

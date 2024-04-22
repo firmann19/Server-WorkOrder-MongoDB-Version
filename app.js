@@ -31,7 +31,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.get("/", (req, res) => {
   res.status(200).json({
     message: "Welcome to api WorkOrder",
-  }); 
+  });
 });
 
 // gunakan router

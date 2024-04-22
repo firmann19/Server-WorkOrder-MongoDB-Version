@@ -108,6 +108,7 @@ const StatusRejected = async (req, res, next) => {
       data: result,
     });
   } catch (error) {
+    console.log(error)
     next(error);
   }
 };
@@ -120,6 +121,7 @@ const StatusWO = async (req, res, next) => {
       data: result,
     });
   } catch (error) {
+    console.log(error)
     next(error);
   }
 };
