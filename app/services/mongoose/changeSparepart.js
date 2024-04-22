@@ -1,6 +1,7 @@
 const ChangeSparepart = require("../../api/changeSparepart/model");
+const User = require("../../api/user/model");
 const { NotFoundError, BadRequestError } = require("../../errors");
-const { ApproveSparepart } = require("../mail");
+const { RequestChangeSparepart, ApproveChangeSparepart } = require("../mail");
 const { getEmailConfirmation } = require("../repository/checkoutRepository");
 
 module.exports = {
@@ -16,16 +17,6 @@ module.exports = {
       HeadIT,
     } = req.body;
 
-    if (!namaSparepart) {
-      throw new BadRequestError("Mohon Input Nama Sparepart");
-    } else if (!harga) {
-      throw new BadRequestError("Mohon Input Harga");
-    } else if (!jumlahOrder) {
-      throw new BadRequestError("Mohon Input Jumlah Order");
-    } else if (!alasan) {
-      throw new BadRequestError("Mohon Input alasan");
-    }
-
     const getEmail = await getEmailConfirmation({ HeadIT });
 
     const createChangeSparepart = await ChangeSparepart.create({
@@ -39,7 +30,7 @@ module.exports = {
       HeadIT,
     });
 
-    await ApproveSparepart(getEmail, createChangeSparepart);
+    await RequestChangeSparepart(getEmail, createChangeSparepart);
 
     return createChangeSparepart;
   },
@@ -133,19 +124,41 @@ module.exports = {
     const { id } = req.params;
     const { statusPengajuan } = req.body;
 
-    // Jika status event bukan draft ataupun published maka akan menampilkan message dari BadRequestError
     if (!["Ditolak", "Diterima"].includes(statusPengajuan)) {
       throw new BadRequestError("Status harus Ditolak atau Diterima");
     }
 
-    const checkStatusPengajuan = await ChangeSparepart.findOne({ _id: id });
+    const checkStatusPengajuan = await ChangeSparepart.findOne({
+      _id: id,
+    }).populate("userRequestWO");
 
     if (!checkStatusPengajuan)
       throw new NotFoundError(`Tidak ada nama sparepart dengan id :  ${id}`);
 
+    //Dapatkan ID pengguna dari properti UserRequestWO
+    const userId = checkStatusPengajuan.userRequestWO;
+
+    //Temukan pengguna yang sesuai berdasarkan ID pengguna
+    const user = await User.findById(userId);
+
+    if (!user)
+      throw new NotFoundError(`Tidak ada pengguna dengan id :  ${userId}`);
+
+    //Dapatkan email pengguna dari model User
+    const userEmail = user.email;
+
     checkStatusPengajuan.statusPengajuan = statusPengajuan;
 
+    const namaBarang = checkStatus.NamaBarang;
+
     await checkStatusPengajuan.save();
+
+    //Kirim email ke pengaju jika StatusWO adalah "Diterima"
+    if (StatusWO === "Diterima") {
+      await ApproveChangeSparepart(userEmail, {
+        NamaBarang: namaBarang,
+      });
+    }
 
     return checkStatusPengajuan;
   },

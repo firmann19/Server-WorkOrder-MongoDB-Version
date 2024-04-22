@@ -1,5 +1,12 @@
 const { StatusCodes } = require("http-status-codes");
-const { createChangeSparepart, getAllChangeSparepart, getOneChangeSparepart, updateChangeSparepart, deleteChangeSparepart, changeStatusPengajuan } = require("../../services/mongoose/changeSparepart");
+const {
+  createChangeSparepart,
+  getAllChangeSparepart,
+  getOneChangeSparepart,
+  updateChangeSparepart,
+  deleteChangeSparepart,
+  changeStatusPengajuan,
+} = require("../../services/mongoose/changeSparepart");
 
 const create = async (req, res, next) => {
   try {

@@ -32,7 +32,10 @@ const verifMail = async (getEmail, data) => {
 
 const DiketahuiWO = async (getEmail, data) => {
   try {
-    let template = fs.readFileSync("app/views/email/VerifikasiHeadIT.html", "utf8");
+    let template = fs.readFileSync(
+      "app/views/email/VerifikasiHeadIT.html",
+      "utf8"
+    );
 
     let message = {
       from: "'WorkOrder HTA' <no-reply@gmail.com>",
@@ -49,13 +52,19 @@ const DiketahuiWO = async (getEmail, data) => {
 
 const ApproveRejected = async (getEmail, data) => {
   try {
-    let template = fs.readFileSync("app/views/email/approveRejected.html", "utf8");
+    let template = fs.readFileSync(
+      "app/views/email/approveRejected.html",
+      "utf8"
+    );
 
     let message = {
       from: "'WorkOrder HTA' <no-reply@gmail.com>",
       to: getEmail,
       subject: "Work Order Approval Rejected",
-      html: Mustache.render(template, {NamaBarang: data.NamaBarang, KodeBarang: data.KodeBarang}),
+      html: Mustache.render(template, {
+        NamaBarang: data.NamaBarang,
+        KodeBarang: data.KodeBarang,
+      }),
     };
 
     return await transporter.sendMail(message);
@@ -66,13 +75,19 @@ const ApproveRejected = async (getEmail, data) => {
 
 const ApproveAccepted = async (getEmail, data) => {
   try {
-    let template = fs.readFileSync("app/views/email/approveAccepted.html", "utf8");
+    let template = fs.readFileSync(
+      "app/views/email/approveAccepted.html",
+      "utf8"
+    );
 
     let message = {
       from: "'WorkOrder HTA' <no-reply@gmail.com>",
       to: getEmail,
       subject: "Work Order Approval Accepted",
-      html: Mustache.render(template, {NamaBarang: data.NamaBarang, KodeBarang: data.KodeBarang}),
+      html: Mustache.render(template, {
+        NamaBarang: data.NamaBarang,
+        KodeBarang: data.KodeBarang,
+      }),
     };
 
     return await transporter.sendMail(message);
@@ -89,7 +104,10 @@ const StatusOnProgress = async (getEmail, data) => {
       from: "'WorkOrder HTA' <no-reply@gmail.com>",
       to: getEmail,
       subject: "Work Order On Progress",
-      html: Mustache.render(template, {NamaBarang: data.NamaBarang, KodeBarang: data.KodeBarang}),
+      html: Mustache.render(template, {
+        NamaBarang: data.NamaBarang,
+        KodeBarang: data.KodeBarang,
+      }),
     };
 
     return await transporter.sendMail(message);
@@ -106,7 +124,10 @@ const StatusClose = async (getEmail, data) => {
       from: "'WorkOrder HTA' <no-reply@gmail.com>",
       to: getEmail,
       subject: "Work Order Close",
-      html: Mustache.render(template, {NamaBarang: data.NamaBarang, KodeBarang: data.KodeBarang}),
+      html: Mustache.render(template, {
+        NamaBarang: data.NamaBarang,
+        KodeBarang: data.KodeBarang,
+      }),
     };
 
     return await transporter.sendMail(message);
@@ -115,9 +136,12 @@ const StatusClose = async (getEmail, data) => {
   }
 };
 
-const ApproveSparepart = async (getEmail, data) => {
+const RequestChangeSparepart = async (getEmail, data) => {
   try {
-    let template = fs.readFileSync("app/views/email/approveSparepart.html", "utf8");
+    let template = fs.readFileSync(
+      "app/views/email/changeSparepart.html",
+      "utf8"
+    );
 
     let message = {
       from: "'WorkOrder HTA' <no-reply@gmail.com>",
@@ -132,4 +156,54 @@ const ApproveSparepart = async (getEmail, data) => {
   }
 };
 
-module.exports = { verifMail, DiketahuiWO, ApproveSparepart, ApproveRejected, ApproveAccepted, StatusOnProgress, StatusClose };
+const ApproveChangeSparepart = async (getEmail, data) => {
+  try {
+    let template = fs.readFileSync(
+      "app/views/email/approveChangeSparepart.html",
+      "utf8"
+    );
+
+    let message = {
+      from: "'WorkOrder HTA' <no-reply@gmail.com>",
+      to: getEmail,
+      subject: "Pergantian Sparepart Disetujui",
+      html: Mustache.render(template, data),
+    };
+
+    return await transporter.sendMail(message);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const RejectedChangeSparepart = async (getEmail, data) => {
+  try {
+    let template = fs.readFileSync(
+      "app/views/email/rejectedChangeSparepart.html",
+      "utf8"
+    );
+
+    let message = {
+      from: "'WorkOrder HTA' <no-reply@gmail.com>",
+      to: getEmail,
+      subject: "Pergantian Sparepart Ditolak",
+      html: Mustache.render(template, data),
+    };
+
+    return await transporter.sendMail(message);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+module.exports = {
+  verifMail,
+  DiketahuiWO,
+  RequestChangeSparepart,
+  ApproveRejected,
+  ApproveAccepted,
+  StatusOnProgress,
+  StatusClose,
+  ApproveChangeSparepart,
+  RejectedChangeSparepart,
+};
