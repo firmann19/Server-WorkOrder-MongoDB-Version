@@ -20,23 +20,6 @@ module.exports = {
     const { image, nama, email, posisi, role, password, departement, group } =
       req.body;
 
-    //Cek kondisi
-    if (!nama) {
-      throw new BadRequestError("Nama belum di input");
-    } else if (!email) {
-      throw new BadRequestError("Email belum di input");
-    } else if (!posisi) {
-      throw new BadRequestError("Posisi belum di input");
-    } else if (!role) {
-      throw new BadRequestError("Role belum di input");
-    } else if (!password) {
-      throw new BadRequestError("Password belum di input");
-    } else if (!group) {
-      throw new BadRequestError("Group belum di input");
-    } else if (!departement) {
-      throw new BadRequestError("Departement belum di input");
-    }
-
     await checkingImage(image);
 
     const createdUser = await User.create({

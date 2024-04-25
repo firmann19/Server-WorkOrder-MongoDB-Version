@@ -3,20 +3,19 @@ const mongoose = require("mongoose");
 const ChangeSparepartSchema = new mongoose.Schema(
   {
     userRequestWO: {
-      type: String,
-      required: [true, "Nama User harus diisi"],
-      minlength: 3,
-      maxlength: 50,
-    },
-    departementUser: {
-      type: String,
-      required: [true, "Nama Departement harus diisi"],
-      minlength: 3,
-      maxlength: 50,
+      type: mongoose.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
     namaSparepart: {
       type: String,
       required: [true, "Nama sparepart harus diisi"],
+      minlength: 3,
+      maxlength: 50,
+    },
+    kodeSparepart: {
+      type: String,
+      required: [true, "kode sparepart sparepart harus diisi"],
       minlength: 3,
       maxlength: 50,
     },

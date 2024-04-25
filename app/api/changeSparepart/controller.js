@@ -5,7 +5,8 @@ const {
   getOneChangeSparepart,
   updateChangeSparepart,
   deleteChangeSparepart,
-  changeStatusPengajuan,
+  RejectStatusPengajuan,
+  ApproveStatusPengajuan,
 } = require("../../services/mongoose/changeSparepart");
 
 const create = async (req, res, next) => {
@@ -68,9 +69,22 @@ const destroy = async (req, res, next) => {
   }
 };
 
-const changeStatus = async (req, res, next) => {
+const ApproveStatus = async (req, res, next) => {
   try {
-    const result = await changeStatusPengajuan(req);
+    const result = await ApproveStatusPengajuan(req);
+
+    res.status(StatusCodes.OK).json({
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+    console.log(error)
+  }
+};
+
+const RejectStatus = async (req, res, next) => {
+  try {
+    const result = await RejectStatusPengajuan(req);
 
     res.status(StatusCodes.OK).json({
       data: result,
@@ -80,4 +94,12 @@ const changeStatus = async (req, res, next) => {
   }
 };
 
-module.exports = { create, index, getOne, update, destroy, changeStatus };
+module.exports = {
+  create,
+  index,
+  getOne,
+  update,
+  destroy,
+  ApproveStatus,
+  RejectStatus,
+};

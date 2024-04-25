@@ -27,7 +27,7 @@ module.exports = {
   },
   CountOnProgress: async (req, res) => {
     const CountOnProgress = await Checkout.countDocuments({
-      StatusPengerjaan: "OnProgress",
+      StatusPengerjaan: "On Progress",
     });
 
     return CountOnProgress;

@@ -1,14 +1,18 @@
 const ChangeSparepart = require("../../api/changeSparepart/model");
 const User = require("../../api/user/model");
 const { NotFoundError, BadRequestError } = require("../../errors");
-const { RequestChangeSparepart, ApproveChangeSparepart } = require("../mail");
+const {
+  RequestChangeSparepart,
+  ApproveChangeSparepart,
+  RejectedChangeSparepart,
+} = require("../mail");
 const { getEmailConfirmation } = require("../repository/checkoutRepository");
 
 module.exports = {
   createChangeSparepart: async (req, res) => {
     const {
       userRequestWO,
-      departementUser,
+      kodeSparepart,
       namaSparepart,
       harga,
       jumlahOrder,
@@ -21,8 +25,8 @@ module.exports = {
 
     const createChangeSparepart = await ChangeSparepart.create({
       userRequestWO,
-      departementUser,
       namaSparepart,
+      kodeSparepart,
       harga,
       jumlahOrder,
       alasan,
@@ -38,6 +42,8 @@ module.exports = {
   getAllChangeSparepart: async (req, res) => {
     const { keyword } = req.query;
 
+    let condition = {};
+
     if (keyword) {
       condition = {
         ...condition,
@@ -45,7 +51,10 @@ module.exports = {
       };
     }
 
-    const result = await ChangeSparepart.find();
+    const result = await ChangeSparepart.find(condition).populate({
+      path: "userRequestWO",
+      select: "_id nama",
+    });
 
     return result;
   },
@@ -55,6 +64,9 @@ module.exports = {
 
     const result = await ChangeSparepart.findOne({
       _id: id,
+    }).populate({
+      path: "userRequestWO",
+      select: "_id nama",
     });
 
     if (!result)
@@ -68,7 +80,7 @@ module.exports = {
 
     const {
       userRequestWo,
-      departementUser,
+      kodeSparepart,
       namaSparepart,
       harga,
       jumlahOrder,
@@ -88,7 +100,7 @@ module.exports = {
       { _id: id },
       {
         userRequestWo,
-        departementUser,
+        kodeSparepart,
         namaSparepart,
         harga,
         jumlahOrder,
@@ -120,12 +132,12 @@ module.exports = {
     return result;
   },
 
-  changeStatusPengajuan: async (req, res) => {
+  ApproveStatusPengajuan: async (req, res) => {
     const { id } = req.params;
     const { statusPengajuan } = req.body;
 
-    if (!["Ditolak", "Diterima"].includes(statusPengajuan)) {
-      throw new BadRequestError("Status harus Ditolak atau Diterima");
+    if (!["Belum Diketahui", "Diterima"].includes(statusPengajuan)) {
+      throw new BadRequestError("Status harus Belum Diketahui atau Diterima");
     }
 
     const checkStatusPengajuan = await ChangeSparepart.findOne({
@@ -156,6 +168,49 @@ module.exports = {
     //Kirim email ke pengaju jika StatusWO adalah "Diterima"
     if (StatusWO === "Diterima") {
       await ApproveChangeSparepart(userEmail, {
+        NamaBarang: namaBarang,
+      });
+    }
+
+    return checkStatusPengajuan;
+  },
+
+  RejectStatusPengajuan: async (req, res) => {
+    const { id } = req.params;
+    const { statusPengajuan } = req.body;
+
+    if (!["Belum Diketahui", "Ditolak"].includes(statusPengajuan)) {
+      throw new BadRequestError("Status harus Belum Diketahui atau Ditolak");
+    }
+
+    const checkStatusPengajuan = await ChangeSparepart.findOne({
+      _id: id,
+    }).populate("userRequestWO");
+
+    if (!checkStatusPengajuan)
+      throw new NotFoundError(`Tidak ada nama sparepart dengan id :  ${id}`);
+
+    //Dapatkan ID pengguna dari properti UserRequestWO
+    const userId = checkStatusPengajuan.userRequestWO;
+
+    //Temukan pengguna yang sesuai berdasarkan ID pengguna
+    const user = await User.findById(userId);
+
+    if (!user)
+      throw new NotFoundError(`Tidak ada pengguna dengan id :  ${userId}`);
+
+    //Dapatkan email pengguna dari model User
+    const userEmail = user.email;
+
+    checkStatusPengajuan.statusPengajuan = statusPengajuan;
+
+    const namaBarang = checkStatus.NamaBarang;
+
+    await checkStatusPengajuan.save();
+
+    //Kirim email ke pengaju jika StatusWO adalah "Diterima"
+    if (StatusWO === "Ditolak") {
+      await RejectedChangeSparepart(userEmail, {
         NamaBarang: namaBarang,
       });
     }

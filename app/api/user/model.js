@@ -28,22 +28,22 @@ const UserSchema = new mongoose.Schema(
     departement: {
       type: mongoose.Types.ObjectId,
       ref: "Departement",
-      required: true,
+      required: [true, "Departement harus diisi"],
     },
     group: {
       type: mongoose.Types.ObjectId,
       ref: "Group",
-      required: true,
+      required: [true, "Group harus diisi"],
     },
     posisi: {
       type: mongoose.Types.ObjectId,
       ref: "Posisi",
-      required: true,
+      required: [true, "Posisi harus diisi"],
     },
     role: {
       type: mongoose.Types.ObjectId,
       ref: "Role",
-      required: true,
+      required: [true, "Role harus diisi"],
     },
   },
   { timestamps: true }
