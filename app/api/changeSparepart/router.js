@@ -11,7 +11,7 @@ const { authenticateUser, authorizeRoles } = require("../../middlewares/auth");
 const router = express();
 
 router.post(
-  "/changeSparepart",
+  "/changeSparepart/:id",
   authenticateUser,
   authorizeRoles("Staff IT", "Manager IT"),
   create

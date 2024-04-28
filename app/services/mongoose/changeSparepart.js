@@ -11,26 +11,24 @@ const { getEmailConfirmation } = require("../repository/checkoutRepository");
 module.exports = {
   createChangeSparepart: async (req, res) => {
     const {
-      userRequestWO,
-      kodeSparepart,
+      StaffITRequest,
       namaSparepart,
+      kodeSparepart,
       harga,
       jumlahOrder,
       alasan,
-      statusPengajuan,
       HeadIT,
     } = req.body;
 
     const getEmail = await getEmailConfirmation({ HeadIT });
 
     const createChangeSparepart = await ChangeSparepart.create({
-      userRequestWO,
+      StaffITRequest,
       namaSparepart,
       kodeSparepart,
       harga,
       jumlahOrder,
       alasan,
-      statusPengajuan,
       HeadIT,
     });
 
@@ -52,7 +50,7 @@ module.exports = {
     }
 
     const result = await ChangeSparepart.find(condition).populate({
-      path: "userRequestWO",
+      path: "StaffITRequest",
       select: "_id nama",
     });
 
@@ -64,10 +62,15 @@ module.exports = {
 
     const result = await ChangeSparepart.findOne({
       _id: id,
-    }).populate({
-      path: "userRequestWO",
-      select: "_id nama",
-    });
+    })
+      .populate({
+        path: "StaffITRequest",
+        select: "_id nama",
+      })
+      .populate({
+        path: "HeadIT",
+        select: "_id nama",
+      });
 
     if (!result)
       throw new NotFoundError(`Tidak ada ChangeSparepart dengan id :  ${id}`);
