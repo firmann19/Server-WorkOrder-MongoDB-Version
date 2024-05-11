@@ -3,7 +3,6 @@ const {
   createChangeSparepart,
   getAllChangeSparepart,
   getOneChangeSparepart,
-  updateChangeSparepart,
   deleteChangeSparepart,
   RejectStatusPengajuan,
   ApproveStatusPengajuan,
@@ -36,18 +35,6 @@ const index = async (req, res, next) => {
 const getOne = async (req, res, next) => {
   try {
     const result = await getOneChangeSparepart(req);
-
-    res.status(StatusCodes.OK).json({
-      data: result,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-const update = async (req, res, next) => {
-  try {
-    const result = await updateChangeSparepart(req);
 
     res.status(StatusCodes.OK).json({
       data: result,
@@ -98,7 +85,6 @@ module.exports = {
   create,
   index,
   getOne,
-  update,
   destroy,
   ApproveStatus,
   RejectStatus,

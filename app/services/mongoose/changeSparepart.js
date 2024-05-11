@@ -78,48 +78,6 @@ module.exports = {
     return result;
   },
 
-  updateChangeSparepart: async (req, res) => {
-    const { id } = req.params;
-
-    const {
-      userRequestWo,
-      kodeSparepart,
-      namaSparepart,
-      harga,
-      jumlahOrder,
-      alasan,
-      statusPengajuan,
-      HeadIT,
-    } = req.body;
-
-    const check = await ChangeSparepart.findOne({
-      namaSparepart,
-      _id: { $ne: id },
-    });
-
-    if (check) throw new BadRequestError("nama sparepart duplikat");
-
-    const result = await ChangeSparepart.findOneAndUpdate(
-      { _id: id },
-      {
-        userRequestWo,
-        kodeSparepart,
-        namaSparepart,
-        harga,
-        jumlahOrder,
-        alasan,
-        statusPengajuan,
-        HeadIT,
-      },
-      { new: true, runValidators: true }
-    );
-
-    if (!result)
-      throw new NotFoundError(`Tidak ada nama sparepart dengan id : ${id}`);
-
-    return result;
-  },
-
   deleteChangeSparepart: async (req, res) => {
     const { id } = req.params;
 
@@ -145,13 +103,13 @@ module.exports = {
 
     const checkStatusPengajuan = await ChangeSparepart.findOne({
       _id: id,
-    }).populate("userRequestWO");
+    }).populate("StaffITRequest");
 
     if (!checkStatusPengajuan)
       throw new NotFoundError(`Tidak ada nama sparepart dengan id :  ${id}`);
 
     //Dapatkan ID pengguna dari properti UserRequestWO
-    const userId = checkStatusPengajuan.userRequestWO;
+    const userId = checkStatusPengajuan.StaffITRequest;
 
     //Temukan pengguna yang sesuai berdasarkan ID pengguna
     const user = await User.findById(userId);
@@ -164,14 +122,16 @@ module.exports = {
 
     checkStatusPengajuan.statusPengajuan = statusPengajuan;
 
-    const namaBarang = checkStatus.NamaBarang;
+    const namaSparepart = checkStatusPengajuan.namaSparepart;
+    const kodeSparepart = checkStatusPengajuan.kodeSparepart;
 
     await checkStatusPengajuan.save();
 
     //Kirim email ke pengaju jika StatusWO adalah "Diterima"
-    if (StatusWO === "Diterima") {
+    if (statusPengajuan === "Diterima") {
       await ApproveChangeSparepart(userEmail, {
-        NamaBarang: namaBarang,
+        namaSparepart: namaSparepart,
+        kodeSparepart: kodeSparepart,
       });
     }
 
@@ -188,13 +148,13 @@ module.exports = {
 
     const checkStatusPengajuan = await ChangeSparepart.findOne({
       _id: id,
-    }).populate("userRequestWO");
+    }).populate("StaffITRequest");
 
     if (!checkStatusPengajuan)
       throw new NotFoundError(`Tidak ada nama sparepart dengan id :  ${id}`);
 
     //Dapatkan ID pengguna dari properti UserRequestWO
-    const userId = checkStatusPengajuan.userRequestWO;
+    const userId = checkStatusPengajuan.StaffITRequest;
 
     //Temukan pengguna yang sesuai berdasarkan ID pengguna
     const user = await User.findById(userId);
@@ -207,14 +167,16 @@ module.exports = {
 
     checkStatusPengajuan.statusPengajuan = statusPengajuan;
 
-    const namaBarang = checkStatus.NamaBarang;
+    const namaSparepart = checkStatusPengajuan.namaSparepart;
+    const kodeSparepart = checkStatusPengajuan.kodeSparepart;
 
     await checkStatusPengajuan.save();
 
     //Kirim email ke pengaju jika StatusWO adalah "Diterima"
-    if (StatusWO === "Ditolak") {
+    if (statusPengajuan === "Ditolak") {
       await RejectedChangeSparepart(userEmail, {
-        NamaBarang: namaBarang,
+        namaSparepart: namaSparepart,
+        kodeSparepart: kodeSparepart,
       });
     }
 

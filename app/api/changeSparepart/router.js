@@ -3,9 +3,9 @@ const {
   create,
   index,
   getOne,
-  update,
   destroy,
   ApproveStatus,
+  RejectStatus
 } = require("./controller");
 const { authenticateUser, authorizeRoles } = require("../../middlewares/auth");
 const router = express();
@@ -28,11 +28,6 @@ router.get(
   authorizeRoles("Staff IT", "Manager IT"),
   getOne
 );
-router.put(
-  "/changeSparepart/:id",
-  authenticateUser,
-  update
-);
 router.delete(
   "/changeSparepart/:id",
   authenticateUser,
@@ -48,7 +43,7 @@ router.put(
 router.put(
   "/changeSparepart/:id/rejectStatusPengajuan",
   authenticateUser,
-  ApproveStatus,
+  RejectStatus,
   authorizeRoles("Manager IT")
 );
 
