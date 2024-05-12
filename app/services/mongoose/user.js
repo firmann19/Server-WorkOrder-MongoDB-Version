@@ -4,7 +4,7 @@ const {
   NotFoundError,
   UnauthorizedError,
 } = require("../../errors");
-const { createJWT, createTokenUser } = require("../../utils");
+const { createJWT, createTokenUser, createRefreshJWT } = require("../../utils");
 const {
   CountAllWorkOrder,
   CountAllUser,
@@ -14,6 +14,7 @@ const {
   CountPending,
 } = require("./dashboard");
 const { checkingImage } = require("./images");
+const { createUserRefreshToken } = require("./refreshToken");
 
 module.exports = {
   signUp: async (req, res) => {
@@ -80,8 +81,15 @@ module.exports = {
 
     const token = createJWT({ payload: createTokenUser(result) });
 
+    const refreshToken = createRefreshJWT({ payload: createTokenUser(result) });
+    await createUserRefreshToken({
+      refreshToken,
+      user: result._id,
+    });
+
     return {
       token,
+      refreshToken,
       user: result.nama,
       namaDepartement: result.departement.namaDepartement,
       departementId: result.departement._id,
@@ -96,7 +104,7 @@ module.exports = {
       getAllOnProgress: getOnProgress,
       getAllClose: getClose,
       getAllPending: getPending,
-      image: result.image.name
+      image: result.image.name,
     };
   },
 
@@ -109,9 +117,9 @@ module.exports = {
   },
 
   getAllUser: async (req, res) => {
-    const {keyword, departement, group} = req.query;
+    const { keyword, departement, group } = req.query;
 
-    let condition = {}
+    let condition = {};
 
     if (keyword) {
       condition = { ...condition, nama: { $regex: keyword, $options: "i" } };
