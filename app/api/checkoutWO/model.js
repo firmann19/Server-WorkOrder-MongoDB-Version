@@ -12,7 +12,7 @@ const CheckoutWOSchema = new mongoose.Schema(
     },
     NamaBarang: {
       type: String,
-      minlength: 5,
+      minlength: 3,
       maxlength: 50,
     },
     KodeBarang: {
@@ -23,7 +23,7 @@ const CheckoutWOSchema = new mongoose.Schema(
     Permasalahan: {
       type: String,
       minlength: 5,
-      maxlength: 50,
+      maxlength: 200,
     },
     StatusWO: {
       type: String,
@@ -43,11 +43,11 @@ const CheckoutWOSchema = new mongoose.Schema(
     Tindakan: {
       type: String,
       minlength: 5,
-      maxlength: 50,
+      maxlength: 200,
     },
     GantiSparepart: {
       type: String,
-      minlength: 5,
+      minlength: 3,
       maxlength: 50,
     },
     StatusPengerjaan: {
