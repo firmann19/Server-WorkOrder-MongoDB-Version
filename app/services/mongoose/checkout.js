@@ -217,7 +217,7 @@ module.exports = {
     if (!Tindakan) {
       throw new BadRequestError("Mohon Input Keterangan Tindakan");
     } else if (!GantiSparepart) {
-      throw new BadRequestError("Mohon Input Kode Peralatan");
+      throw new BadRequestError("Mohon Input Keterangan Sparepart Yang Diganti");
     } else if (!selectedAction) {
       throw new BadRequestError("Mohon Pilih Tindakan");
     }
