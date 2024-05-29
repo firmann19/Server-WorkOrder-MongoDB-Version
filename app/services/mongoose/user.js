@@ -12,6 +12,7 @@ const {
   CountOnProgress,
   CountClose,
   CountPending,
+  CountAllDepartement,
 } = require("./dashboard");
 const { checkingImage } = require("./images");
 const { createUserRefreshToken } = require("./refreshToken");
@@ -61,7 +62,7 @@ module.exports = {
 
     const getDataWO = await CountAllWorkOrder();
     const getDataUser = await CountAllUser();
-    const getDataDepartement = await CountAllGroup();
+    const getDataDepartement = await CountAllDepartement();
     const getDataGroup = await CountAllGroup();
     const getOnProgress = await CountOnProgress();
     const getClose = await CountClose();
