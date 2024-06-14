@@ -78,6 +78,7 @@ const RejectStatus = async (req, res, next) => {
     });
   } catch (error) {
     next(error);
+    console.log(error)
   }
 };
 

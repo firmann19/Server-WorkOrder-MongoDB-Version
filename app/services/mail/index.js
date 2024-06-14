@@ -139,7 +139,7 @@ const StatusClose = async (getEmail, data) => {
 const RequestChangeSparepart = async (getEmail, data) => {
   try {
     let template = fs.readFileSync(
-      "app/views/email/changeSparepart.html",
+      "app/views/email/requestChangeSparepart.html",
       "utf8"
     );
 

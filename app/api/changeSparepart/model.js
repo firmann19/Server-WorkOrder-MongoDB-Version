@@ -44,6 +44,11 @@ const ChangeSparepartSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    alasanReject: {
+      type: String,
+      minlength: 5,
+      maxlength: 50,
+    },
   },
   { timestamps: true }
 );

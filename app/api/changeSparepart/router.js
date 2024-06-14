@@ -37,14 +37,14 @@ router.delete(
 router.put(
   "/changeSparepart/:id/approveStatusPengajuan",
   authenticateUser,
-  ApproveStatus,
-  authorizeRoles("Manager IT")
+  authorizeRoles("Manager IT"),
+  ApproveStatus
 );
 router.put(
   "/changeSparepart/:id/rejectStatusPengajuan",
   authenticateUser,
-  RejectStatus,
-  authorizeRoles("Manager IT")
+  authorizeRoles("Manager IT"),
+  RejectStatus
 );
 
 module.exports = router;

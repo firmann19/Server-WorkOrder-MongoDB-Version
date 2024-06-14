@@ -140,10 +140,16 @@ module.exports = {
 
   RejectStatusPengajuan: async (req, res) => {
     const { id } = req.params;
-    const { statusPengajuan } = req.body;
+    const { statusPengajuan, alasanReject } = req.body;
 
     if (!["Belum Diketahui", "Ditolak"].includes(statusPengajuan)) {
       throw new BadRequestError("Status harus Belum Diketahui atau Ditolak");
+    }
+
+    if (statusPengajuan === "Ditolak" && !alasanReject) {
+      throw new BadRequestError(
+        "Alasan reject harus disertakan jika statusnya Ditolak"
+      );
     }
 
     const checkStatusPengajuan = await ChangeSparepart.findOne({
@@ -167,16 +173,21 @@ module.exports = {
 
     checkStatusPengajuan.statusPengajuan = statusPengajuan;
 
+    if (statusPengajuan === "Ditolak") {
+      checkStatusPengajuan.alasanReject = alasanReject;
+    }
+
     const namaSparepart = checkStatusPengajuan.namaSparepart;
     const kodeSparepart = checkStatusPengajuan.kodeSparepart;
 
     await checkStatusPengajuan.save();
 
-    //Kirim email ke pengaju jika StatusWO adalah "Diterima"
+    //Kirim email ke pengaju jika StatusWO adalah "Ditolak"
     if (statusPengajuan === "Ditolak") {
       await RejectedChangeSparepart(userEmail, {
         namaSparepart: namaSparepart,
         kodeSparepart: kodeSparepart,
+        alasanReject: alasanReject,
       });
     }
 
